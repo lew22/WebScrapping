@@ -1,0 +1,15 @@
+
+{% extends 'layouts/base.html' %}
+
+
+{% block content %}
+<h1>FORMULARIO</h1>
+
+<form method="POST">
+    {{ form.as_p }}
+    <button>
+        Save
+    </button>
+</form>
+
+{% endblock %}

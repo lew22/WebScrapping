@@ -1,0 +1,9 @@
+
+Ejecucion
+
+presiona F1 y escribe terminal
+te saldra una ventana en la parte inferior de visual luego en una de esas pestañas esta una llamada
+"TERMINAL" le das click luego a la derecha haces otra vez click en la flecha hacia abajo a la derecha del "+" y seleccionas command prompt
+y ejecutas este comando "python manage.py runserver"
+
+

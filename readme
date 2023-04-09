@@ -7,6 +7,15 @@ TENER INSTALADO PYTHON 3 O SUPERIOR EN EL ORDENADOR
 -Verifica que version tienes
 python --version
 
+-En la carpeta del proyecto que se clone del git
+instala 
+python -m pip install django
+pip install django-cms
+
+y luego selenium
+pip install selenium
+
+
 -Instala virtualenv en la carpeta del proyecto
 en linea de comando ingresa a la carpeta del proyecto
 

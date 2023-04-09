@@ -75,8 +75,17 @@ def webscrapping(user,password):
 
     #esperamos que la pagina termine de cargar porque sino no obtiene la data 
     sleep(5)
+    
+    #saber que toggle esta seleccionado
+    toggleA = driver.find_element(By.ID, 'square-toggle-option-one-id_2')
+    toggleB = driver.find_element(By.ID, 'square-toggle-option-two-id_3')  
+    
+    if (toggleA.is_selected()):
+        course_titles = driver.find_elements(By.XPATH, "//h4[@class='js-course-title-element ellipsis']")
+    elif (toggleB.is_selected()):
+        course_titles = driver.find_elements(By.XPATH, "//h4[@class='js-course-title-element']")
+    
     #Localizamos el atributo h4 con clase ... que contienen los cursos
-    course_titles = driver.find_elements(By.XPATH, "//h4[@class='js-course-title-element ellipsis']")
     for i in course_titles:
         print("El elemento encontrado es: ",i.text)
     sleep(5)

@@ -85,4 +85,3 @@ def webscrapping(user,password):
     # for i in course_titles:
     #     values = i.text
     #     print("Este es el valor: ",values)
-

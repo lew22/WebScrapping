@@ -109,16 +109,18 @@ def webscrappingCourCont(courses_id,driver):
     #ahora buscamos un ul que tenga li's y los guardamos
     menucontent = driver.find_elements(By.XPATH, "//ul[@id='courseMenuPalette_contents']//li")
     
-    # zone = [["a" for col in range(10)] for row in range(6)]
-    
-    # x = 0
-    # for i in menucontent:
-    #     # letter = str(i.get_attribute('class'))
-    #     if (i.get_attribute('class') == "clearfix "):
-    #         zone[x].append(i.get_attribute('id'))
-    #     else:
-    #         x = x + 1 
-    # print(zone)
+    zone = []
+    aux = []
+    for i in menucontent:
+        if (i.get_attribute('class') == "clearfix "):
+            aux.append(i.get_attribute('id'))
+        elif(i.get_attribute('class') == "clearfix divider"):
+                aux2=aux
+                print("ingresando:\n",aux)
+                zone.append(aux2)
+                print("zona\n",zone)
+                aux = []
+    print("zona final",zone)
 # if (i.get_attribute('class') == "clearfix"):
 # if (i.get_attribute('class') == "clearfix divider"):
 # def webscrappingFiles():

@@ -1,5 +1,4 @@
 
-
 #importamos las librerías necesarias
 from selenium import webdriver
 from time import sleep
@@ -15,9 +14,10 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def webscrappingMain(user,password):
     driver = webdriver.Chrome(chrome_options=options)
+
     #abrimos la página web
     driver.get("https://aulavirtual.upc.edu.pe")
-    
+
     #Recolectamos los cursos
     courses,courses_id= webscrappingCour(user,password,driver)
     
@@ -45,15 +45,15 @@ def webscrappingCour(user,password,driver):
     login_btn = driver.find_element(By.ID, "entry-login")
     login_btn.click()
 
+
     #ahora ingresamos a los cursos
     driver.get("https://aulavirtual.upc.edu.pe/ultra/course")
 
     #esperamos que la pagina termine de cargar porque sino no obtiene la data 
     sleep(5)
-    
     #saber que toggle esta seleccionado
     toggleA = driver.find_element(By.ID, 'square-toggle-option-one-id_2')
-    toggleB = driver.find_element(By.ID, 'square-toggle-option-two-id_3')  
+    toggleB = driver.find_element(By.ID, 'square-toggle-option-two-id_3')
 
     #Localizamos el atributo h4 con clase ... que contienen los cursos
     if (toggleA.is_selected()):
@@ -77,15 +77,10 @@ def webscrappingCour(user,password,driver):
         id_clean = aux.replace('course-link-','')
         print("El id del curso es: ",id_clean)
         courses_id.append(id_clean)
-    sleep(5)
+    
     return courses,courses_id
-    #driver.implicitly_wait(5)
-    # for i in course_titles:
-    #     values = i.text
-    #     print("Este es el valor: ",values)
 
 def webscrappingCourCont(courses_id,driver):
-
     lbase = "https://aulavirtual.upc.edu.pe/ultra/courses/"
     lend = "/cl/outline"
     lcourse = ""
@@ -99,16 +94,32 @@ def webscrappingCourCont(courses_id,driver):
     wait = WebDriverWait(driver,10)
     #wait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it(driver.find_element_by_xpath("//iframe[@class='iframe_class']")))
     wait.until(EC.frame_to_be_available_and_switch_to_it("classic-learn-iframe"))
-    # print(WAS)
-    puller = driver.find_element(By.XPATH, "//a[@class='clickpuller']")
-    print(puller)
-    
-    # if (puller.get_attribute('aria-expanded') == "false"):
-    #     puller.click()
-    # courses_content = driver.find_elements(By.XPATH, "//a[@target='self']")
-    # print(courses_content)
-    # for i in courses_content:
-    #     print("Contenidos encontrados : ", i)
 
+    sleep(5)
+
+    #verificaremos si el puller esta expandido o contraido
+    menupullercollapse = driver.find_element(By.XPATH, "//a[@aria-expanded='false']")
+    menupullerexpanded = driver.find_element(By.XPATH, "//a[@aria-expanded='true']")
+
+    if (menupullercollapse is not None):
+        menupullercollapse.click()
+    if (menupullerexpanded is not None):
+        print("puller expandido")
+
+    #ahora buscamos un ul que tenga li's y los guardamos
+    menucontent = driver.find_elements(By.XPATH, "//ul[@id='courseMenuPalette_contents']//li")
+    
+    # zone = [["a" for col in range(10)] for row in range(6)]
+    
+    # x = 0
+    # for i in menucontent:
+    #     # letter = str(i.get_attribute('class'))
+    #     if (i.get_attribute('class') == "clearfix "):
+    #         zone[x].append(i.get_attribute('id'))
+    #     else:
+    #         x = x + 1 
+    # print(zone)
+# if (i.get_attribute('class') == "clearfix"):
+# if (i.get_attribute('class') == "clearfix divider"):
 # def webscrappingFiles():
 #     print (os.getcwd())

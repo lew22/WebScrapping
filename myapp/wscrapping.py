@@ -5,19 +5,24 @@ from time import sleep
 from selenium.webdriver.common.by import By
 import os
 from selenium.webdriver.chrome.options import Options
-options = Options()
-options.add_experimental_option("detach", True)
+
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 def webscrappingMain(user,password):
-    driver = webdriver.Chrome(chrome_options=options)
+    chrome_options = webdriver.ChromeOptions()
+    prefs = {'download.default_directory' : 'C:\\Users\pc\Desktop\Descargas'}
+    chrome_options.add_experimental_option('prefs',prefs)
+    chromedriver = "C:\\Users\pc\Documents\djangoproject\chromedriver.exe"
+    chrome_options.add_experimental_option("detach", True)
 
+    driver = webdriver.Chrome(executable_path=chromedriver,chrome_options=chrome_options)
+    
     #abrimos la página web
     driver.get("https://aulavirtual.upc.edu.pe")
-
+    
     #Recolectamos los cursos
     courses,courses_id= webscrappingCour(user,password,driver)
     
@@ -91,8 +96,14 @@ def webscrappingCourCont(courses_id,driver):
         linkCourses.append(lcourse)
     #abrimos una pagina de cada curso y realizamos la lectura
     driver.get(linkCourses[1])
+    sleep(3)
+    #Guardamos la ventana de los items de un curso
+    original_window = driver.current_window_handle
+
+    #verificamos que solo tengamos una ventana abierta
+    assert len(driver.window_handles) == 1
+
     wait = WebDriverWait(driver,10)
-    #wait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it(driver.find_element_by_xpath("//iframe[@class='iframe_class']")))
     wait.until(EC.frame_to_be_available_and_switch_to_it("classic-learn-iframe"))
 
     sleep(5)
@@ -107,21 +118,16 @@ def webscrappingCourCont(courses_id,driver):
         print("puller expandido")
 
     #ahora buscamos un ul que tenga li's y los guardamos
-    menucontent = driver.find_elements(By.XPATH, "//ul[@id='courseMenuPalette_contents']//li")
+    menucontent = driver.find_elements(By.XPATH, "//ul[@id='courseMenuPalette_contents']//li[@class='clearfix ']//a")
     
-    zone = []
-    aux = []
+    data = dict()
+
     for i in menucontent:
-        if (i.get_attribute('class') == "clearfix "):
-            aux.append(i.get_attribute('id'))
-        elif(i.get_attribute('class') == "clearfix divider"):
-                aux2=aux
-                print("ingresando:\n",aux)
-                zone.append(aux2)
-                print("zona\n",zone)
-                aux = []
-    print("zona final",zone)
-# if (i.get_attribute('class') == "clearfix"):
-# if (i.get_attribute('class') == "clearfix divider"):
+        span = i.find_element(By.TAG_NAME,'span')
+        span.get_attribute('title')
+        i.get_attribute('href')
+        # i.click()
+    print(data)
+
 # def webscrappingFiles():
 #     print (os.getcwd())

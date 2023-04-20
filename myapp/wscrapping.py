@@ -4,6 +4,8 @@ from selenium import webdriver
 from time import sleep
 from selenium.webdriver.common.by import By
 import os
+import shutil
+import glob
 from selenium.webdriver.chrome.options import Options
 import requests
 
@@ -102,38 +104,6 @@ def webscrappingCourCont(courses_id,driver):
     path =  "C:\\Users\pc\Desktop\Descargas"
     depth = 3
     scrape_page(curso,path,depth)
-    
-    # sleep(3)
-    #Guardamos la ventana de los items de un curso
-    # original_window = driver.current_window_handle
-
-    #verificamos que solo tengamos una ventana abierta
-    # assert len(driver.window_handles) == 1
-
-    # wait = WebDriverWait(driver,10)
-    # wait.until(EC.frame_to_be_available_and_switch_to_it("classic-learn-iframe"))
-
-    # sleep(5)
-
-    # #verificaremos si el puller esta expandido o contraido
-    # menupullercollapse = driver.find_element(By.XPATH, "//a[@aria-expanded='false']")
-    # menupullerexpanded = driver.find_element(By.XPATH, "//a[@aria-expanded='true']")
-
-    # if (menupullercollapse is not None):
-    #     menupullercollapse.click()
-    # if (menupullerexpanded is not None):
-    #     print("puller expandido")
-
-    #ahora buscamos un ul que tenga li's y los guardamos
-    # menucontent = driver.find_elements(By.XPATH, "//ul[@id='courseMenuPalette_contents']//li[@class='clearfix ']//a")
-    
-    # for i in menucontent:
-    #     span = i.find_element(By.TAG_NAME,'span')
-    #     span.get_attribute('title')
-    #     i.get_attribute('href')
-    #     # i.click()
-    # print(data)
-
 
 def scrape_page(url, folder_path,depth):
     
@@ -145,21 +115,36 @@ def scrape_page(url, folder_path,depth):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
+    links = driver.find_elements(By.XPATH, "//h3//a")
+    titleHeaderPager = driver.find_element(By.XPATH, "//h1[@id='pageTitleHeader']//span[@id='pageTitleText']")
+
+    newfolder= folder_path + "\\" + titleHeaderPager.text
+    if not os.path.exists(newfolder):
+        os.mkdir(newfolder)
+
     for link in links:
+        print(link.get_attribute('href'))
         href = link.get_attribute('href')
         onclick = link.get_attribute('onclick')
-
-        links = driver.find_elements(By.XPATH, "//h3//a")
-
         # Si onclick no es nulo, es un archivo que se puede descargar
         if onclick is not None:
-            response = requests.get(href)
-            filename = os.path.join(folder_path, os.path.basename(href))
-            with open(filename, 'wb') as f:
-                f.write(response.content)
+            driver.get(href)
+            # Busca todos los archivos con extensiones .doc, .exe y .pdf en la carpeta original
+            extensiones = ['doc','docx', 'exe', 'pdf','pptx']
+            archivos = []
+            for extension in extensiones:
+                archivos.extend(glob.glob(os.path.join(folder_path, f"*.{extension}")))
 
+            for archivo in archivos:
+                ruta_archivo_destino = os.path.join(newfolder, os.path.basename(archivo))
+                if os.path.exists(ruta_archivo_destino):
+                    print(f"El archivo {ruta_archivo_destino} ya existe en la carpeta de destino")
+                    os.remove(archivo)
+                else:
+                    shutil.move(archivo, ruta_archivo_destino)
+                    #os.remove(archivo)
         # Si el enlace es una página, llamar a la función de scraping nuevamente
-        elif href.startswith('/webapps/'):
-            next_folder_path = os.path.join(folder_path, os.path.basename(href))
-            scrape_page(href, next_folder_path,depth-1)
-
+        elif href.startswith('https://aulavirtual.upc.edu.pe/webapps/'):
+            print("Es un enlace que me lleva a otra pagina \n",href)
+            # next_folder_path = os.path.join(folder_path, os.path.basename(href))
+            # scrape_page(href, newfolder ,depth-1)

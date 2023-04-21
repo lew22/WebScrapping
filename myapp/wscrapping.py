@@ -27,7 +27,7 @@ def webscrappingMain(user,password):
     
     #Recolectamos los cursos
     courses,courses_id= webscrappingCour(user,password,driver)
-    
+
     #Probando contenido de cursos
     webscrappingCourCont(courses_id,driver)
 
@@ -101,8 +101,8 @@ def webscrappingCourCont(courses_id,driver):
     # driver.get(linkCourses[1])
     driver.maximize_window()
     curso = "https://aulavirtual.upc.edu.pe/webapps/blackboard/content/listContent.jsp?course_id=_367607_1&content_id=_39746882_1&mode=reset"
-    path =  "C:\\Users\pc\Desktop\Descargas"
-    depth = 3
+    path =  "C:\\Users\pc\Desktop\Curso"
+    depth = 2
     scrape_page(curso,path,depth)
 
 def scrape_page(url, folder_path,depth):
@@ -114,26 +114,27 @@ def scrape_page(url, folder_path,depth):
     # Crear la carpeta para guardar los archivos descargados (si no existe)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
-
-    links = driver.find_elements(By.XPATH, "//h3//a")
+    
+    links = driver.find_elements(By.XPATH, "//div[@class='item clearfix']//h3//a")
     titleHeaderPager = driver.find_element(By.XPATH, "//h1[@id='pageTitleHeader']//span[@id='pageTitleText']")
 
+    path_downloads = "C:\\Users\pc\Desktop\Descargas"
     newfolder= folder_path + "\\" + titleHeaderPager.text
     if not os.path.exists(newfolder):
         os.mkdir(newfolder)
 
     for link in links:
-        print(link.get_attribute('href'))
-        href = link.get_attribute('href')
-        onclick = link.get_attribute('onclick')
+        # print("Href encontrado: ",link.get_attribute('href'))
         # Si onclick no es nulo, es un archivo que se puede descargar
-        if onclick is not None:
+        if link.get_attribute('onclick') is not None:
+            href = link.get_attribute('href')
             driver.get(href)
+            sleep(1)
             # Busca todos los archivos con extensiones .doc, .exe y .pdf en la carpeta original
             extensiones = ['doc','docx', 'exe', 'pdf','pptx']
             archivos = []
             for extension in extensiones:
-                archivos.extend(glob.glob(os.path.join(folder_path, f"*.{extension}")))
+                archivos.extend(glob.glob(os.path.join(path_downloads, f"*.{extension}")))
 
             for archivo in archivos:
                 ruta_archivo_destino = os.path.join(newfolder, os.path.basename(archivo))
@@ -144,7 +145,12 @@ def scrape_page(url, folder_path,depth):
                     shutil.move(archivo, ruta_archivo_destino)
                     #os.remove(archivo)
         # Si el enlace es una página, llamar a la función de scraping nuevamente
-        elif href.startswith('https://aulavirtual.upc.edu.pe/webapps/'):
-            print("Es un enlace que me lleva a otra pagina \n",href)
+        elif link.get_attribute('href').startswith('https://aulavirtual.upc.edu.pe/webapps/'):
+            href = link.get_attribute('href')
+            # print("Es un enlace que me lleva a otra pagina \n",href)
             # next_folder_path = os.path.join(folder_path, os.path.basename(href))
-            # scrape_page(href, newfolder ,depth-1)
+            # link.click()
+            sleep(1)
+            scrape_page(href, newfolder ,depth-1)
+            sleep(1)
+            driver.get(url)
